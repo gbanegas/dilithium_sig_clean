@@ -3,10 +3,13 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "params.h"
 
+/*
 #define CRYPTO_PUBLICKEYBYTES 1312
 #define CRYPTO_SECRETKEYBYTES 2528
 #define CRYPTO_BYTES 2420
+*/
 #define PQCLEAN_DILITHIUM2_CLEAN_CRYPTO_ALGNAME "Dilithium2"
 
 
