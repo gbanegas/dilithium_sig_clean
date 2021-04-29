@@ -9,7 +9,7 @@ LIB=main
 HEADERS=api.h ntt.h packing.h params.h poly.h polyvec.h randombytes.h reduce.h rounding.h sign.h symmetric.h fips202.h
 OBJECTS=testvectors.o ntt.o packing.o poly.o polyvec.o randombytes.o reduce.o rounding.o sign.o symmetric-shake.o fips202.o
 
-OBJECTS_TIDY=testvectors.o ntt.o packing.o poly.o polyvec.o reduce.o rounding.o sign.o symmetric-shake.o 
+OBJECTS_TIDY=testvectors.o ntt.o packing.o poly.o polyvec.o reduce.o rounding.o sign.o symmetric-shake.o
 
 TIDYCHECKS ?= -checks=*,-readability-isolate-declaration,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-init-variables
 TIDYFLAGS ?= $(TIDYCHECKS) -warnings-as-errors=*
@@ -18,11 +18,14 @@ TIDYSRCS = $(OBJECTS_TIDY:.o=.c)
 #CFLAGS=-O3 -Wall -Wextra -Wpedantic -Werror -Wmissing-prototypes -Wredundant-decls -std=c99  $(EXTRAFLAGS)
 
 
-.PHONY: all clean
+#.PHONY: all clean
 
-all: clean $(LIB) run
 
-#.PHONY: clang-tidy
+
+.PHONY: clang-tidy
+
+all: $(LIB) clang-tidy run
+
 
 
 clang-tidy:
