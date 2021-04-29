@@ -5,9 +5,9 @@ AR     = gcc
 TIDY   = clang-tidy
 CFLAGS_TIDY ?= -std=c99
 
-LIB=libdilithium2_clean.a
-HEADERS=api.h ntt.h packing.h params.h poly.h polyvec.h reduce.h rounding.h sign.h symmetric.h 
-OBJECTS=ntt.o packing.o poly.o polyvec.o reduce.o rounding.o sign.o symmetric-shake.o 
+LIB=main
+HEADERS=api.h ntt.h packing.h params.h poly.h polyvec.h randombytes.h reduce.h rounding.h sign.h symmetric.h fips202.h
+OBJECTS=testvectors.o ntt.o packing.o poly.o polyvec.o randombytes.o reduce.o rounding.o sign.o symmetric-shake.o fips202.o
 
 TIDYCHECKS ?= -checks=*,-readability-isolate-declaration,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-init-variables
 TIDYFLAGS ?= $(TIDYCHECKS) -warnings-as-errors=*
@@ -24,7 +24,7 @@ all: $(LIB)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(LIB): $(OBJECTS)
-	$(AR) -r $@ $(OBJECTS)
+	$(AR) -o $@ $(OBJECTS)
 
 clean:
 	$(RM) $(OBJECTS)
