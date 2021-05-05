@@ -1,9 +1,10 @@
+#include <random.h>
 #include "fips202.h"
 #include "packing.h"
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
-#include "randombytes.h"
+//#include "randombytes.h"
 #include "sign.h"
 #include "symmetric.h"
 #include <stdint.h>
@@ -29,7 +30,7 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck s2, t1, t0;
 
     /* Get randomness for rho, rhoprime and key */
-    randombytes(seedbuf, SEEDBYTES);
+    random_bytes(seedbuf, SEEDBYTES);
     shake256(seedbuf, 2 * SEEDBYTES + CRHBYTES, seedbuf, SEEDBYTES);
     rho = seedbuf;
     rhoprime = rho + SEEDBYTES;
