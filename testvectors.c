@@ -52,19 +52,20 @@ int main(void) {
 
 
     /* i = 0, 1, 4, 16, 64, 256, 1024 */
+    crypto_sign_keypair(pk, sk);
+
     for (i = 0; i < MAXMLEN; i = (i == 0) ? i + 1 : i << 2) {
         randombytes(mi, i);
 
-        crypto_sign_keypair(pk, sk);
 
-        printbytes(pk, CRYPTO_PUBLICKEYBYTES);
-        printbytes(sk, CRYPTO_SECRETKEYBYTES);
+        //printbytes(pk, CRYPTO_PUBLICKEYBYTES);
+        //printbytes(sk, CRYPTO_SECRETKEYBYTES);
 
         crypto_sign(sm, &smlen, mi, i, sk);
         crypto_sign_signature(sig, &siglen, mi, i, sk);
 
-        printbytes(sm, smlen);
-        printbytes(sig, siglen);
+        //printbytes(sm, smlen);
+        //printbytes(sig, siglen);
 
         // By relying on m == sm we prevent having to allocate CRYPTO_BYTES
         // twice
@@ -82,6 +83,7 @@ int main(void) {
             }
         }
     }
+    printf("PASS: all tests passed\n");
 
     printf("CRYPTO_PUBLICKEYBYTES: %d\n", CRYPTO_PUBLICKEYBYTES);
     printf("CRYPTO_SECRETKEYBYTES: %d\n", CRYPTO_SECRETKEYBYTES);

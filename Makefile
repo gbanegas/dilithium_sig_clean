@@ -6,8 +6,8 @@ TIDY   = clang-tidy
 CFLAGS_TIDY ?= -std=c99
 
 LIB=main
-HEADERS=api.h ntt.h packing.h params.h poly.h polyvec.h randombytes.h reduce.h rounding.h sign.h symmetric.h fips202.h
-OBJECTS=testvectors.o ntt.o packing.o poly.o polyvec.o randombytes.o reduce.o rounding.o sign.o symmetric-shake.o fips202.o
+HEADERS=api.h ntt.h packing.h params.h poly.h polyvec.h randombytes.h reduce.h rounding.h sign.h symmetric.h fips202.h blob_writer.h
+OBJECTS=testvectors.o ntt.o packing.o poly.o polyvec.o randombytes.o reduce.o rounding.o sign.o symmetric-shake.o fips202.o blob_writer.o
 
 OBJECTS_TIDY=testvectors.o ntt.o packing.o poly.o polyvec.o reduce.o rounding.o sign.o symmetric-shake.o
 
@@ -22,14 +22,14 @@ TIDYSRCS = $(OBJECTS_TIDY:.o=.c)
 
 
 
-.PHONY: clang-tidy
+#.PHONY: clang-tidy
 
-all: $(LIB) clang-tidy run
+all: $(LIB)  run
 
 
 
-clang-tidy:
-	$(TIDY) $(TIDYFLAGS) $(TIDYSRCS) -- $(CFLAGS) $(CFLAGS_TIDY)
+#clang-tidy:
+#	$(TIDY) $(TIDYFLAGS) $(TIDYSRCS) -- $(CFLAGS) $(CFLAGS_TIDY)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -40,6 +40,7 @@ $(LIB): $(OBJECTS)
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(LIB)
+	$(RM) *.key
 
 run: ${LIB}
 	./${LIB}
