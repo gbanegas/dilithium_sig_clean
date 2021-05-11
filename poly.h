@@ -50,4 +50,7 @@ void polyz_unpack(poly *r, const uint8_t *a);
 
 void polyw1_pack(uint8_t *r, const poly *a);
 
+
+void poly_pointwise_montgomery_flash(poly *c, const uint32_t pointer, const poly *b);
+
 #endif

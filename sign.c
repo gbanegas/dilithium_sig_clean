@@ -1,13 +1,12 @@
-//#include <random.h>
+#include <random.h>
 #include "fips202.h"
 #include "packing.h"
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
-#include "randombytes.h"
+//#include "randombytes.h"
 #include "sign.h"
 #include "symmetric.h"
-#include "blob_writer.h"
 #include <stdint.h>
 
 /*************************************************
@@ -31,7 +30,7 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck s2, t1, t0;
 
     /* Get randomness for rho, rhoprime and key */
-    randombytes(seedbuf, SEEDBYTES);
+    random_bytes(seedbuf, SEEDBYTES);
     shake256(seedbuf, 2 * SEEDBYTES + CRHBYTES, seedbuf, SEEDBYTES);
     rho = seedbuf;
     rhoprime = rho + SEEDBYTES;
@@ -58,7 +57,8 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck_caddq(&t1);
     polyveck_power2round(&t1, &t0, &t1);
     pack_pk(pk, rho, &t1);
-    save(rho, &t1);
+    //save(rho, &t1);
+    //save_matrix(mat);
 
     /* Compute H(rho, t1) and write secret key */
     shake256(tr, SEEDBYTES, pk, CRYPTO_PUBLICKEYBYTES);
@@ -89,7 +89,7 @@ int crypto_sign_signature(uint8_t *sig,
     uint8_t seedbuf[3 * SEEDBYTES + 2 * CRHBYTES];
     uint8_t *rho, *tr, *key, *mu, *rhoprime;
     uint16_t nonce = 0;
-    polyvecl mat[K], s1, y, z;
+    polyvecl  s1, y, z;
     polyveck t0, s2, w1, w0, h;
     poly cp;
     shake256incctx state;
@@ -112,7 +112,7 @@ int crypto_sign_signature(uint8_t *sig,
     shake256(rhoprime, CRHBYTES, key, SEEDBYTES + CRHBYTES);
 
     /* Expand matrix and transform vectors */
-    polyvec_matrix_expand(mat, rho);
+    //polyvec_matrix_expand(mat, rho);
     polyvecl_ntt(&s1);
     polyveck_ntt(&s2);
     polyveck_ntt(&t0);
@@ -124,7 +124,7 @@ rej:
     /* Matrix-vector multiplication */
     z = y;
     polyvecl_ntt(&z);
-    polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+    polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
     polyveck_reduce(&w1);
     polyveck_invntt_tomont(&w1);
 
@@ -237,7 +237,7 @@ int crypto_sign_verify(const uint8_t *sig,
     uint8_t c[SEEDBYTES];
     uint8_t c2[SEEDBYTES];
     poly cp;
-    polyvecl mat[K], z;
+    polyvecl z;
     polyveck t1, w1, h;
     shake256incctx state;
 
@@ -245,9 +245,9 @@ int crypto_sign_verify(const uint8_t *sig,
         return -1;
     }
 
-    //unpack_pk(rho, &t1, pk);
+    unpack_pk(rho, &t1, pk);
 
-    read_rho_t1(rho, &t1);
+    //read_rho_t1(rho, &t1);
     if (unpack_sig(c, &z, &h, sig)) {
         return -1;
     }
@@ -266,12 +266,44 @@ int crypto_sign_verify(const uint8_t *sig,
 
     /* Matrix-vector multiplication; compute Az - c2^dt1 */
     poly_challenge(&cp, c);
-    polyvec_matrix_expand(mat, rho);
+    //polyvec_matrix_expand(mat, rho);
+/*    printf("old:\n");
+    for(int i = 0; i < K; i++){
+        for(int j  = 0 ; j < L;j++){
+            poly p = matrix_flash[i].vec[j];
+
+            for(int k = 0; k < N; k++){
+                printf("%d, ", p.coeffs[k]);
+                // fprintf(f_mat,"%d ",p.coeffs[k]);
+            }
+
+        }
+    }*/
+
+   /* printf("\n----- \n");
+    printf("N_read:\n");*/
+    //read_mat(mat);
+    /*printf("N_read:\n");
+    for(int i = 0; i < K; i++){
+        for(int j  = 0 ; j < L;j++){
+            poly p = matrix_flash[i].vec[j];
+            //printf("| ");
+            for(int k = 0; k < N; k++){
+                printf("%d, ", p.coeffs[k]);
+                // fprintf(f_mat,"%d ",p.coeffs[k]);
+            }
+           // printf(" |\n");
+        }
+    }*/
+/*    printf("\n");*/
+
 
     polyvecl_ntt(&z);
-    polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+    polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
 
     poly_ntt(&cp);
+
+    //TODO: check how to handle the NTT
     polyveck_shiftl(&t1);
     polyveck_ntt(&t1);
     polyveck_pointwise_poly_montgomery(&t1, &cp, &t1);

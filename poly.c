@@ -4,10 +4,15 @@
 #include "reduce.h"
 #include "rounding.h"
 #include "symmetric.h"
+#include "blober.h"
+#include <inttypes.h>
 #include <stdint.h>
 
 #define DBENCH_START()
 #define DBENCH_STOP(t)
+
+
+
 
 /*************************************************
 * Name:        poly_reduce
@@ -174,13 +179,32 @@ void poly_invntt_tomont(poly *a) {
 void poly_pointwise_montgomery(poly *c, const poly *a, const poly *b) {
     unsigned int i;
     DBENCH_START();
-
+   // printf("call poly_pointwise_montgomery");
     for (i = 0; i < N; ++i) {
+       // int64_t  tmp = (int64_t)a->coeffs[i];
+        //printf("%" PRId64 ",", tmp);
         c->coeffs[i] = montgomery_reduce((int64_t)a->coeffs[i] * b->coeffs[i]);
     }
+    //printf("\n");
+    DBENCH_STOP(*tmul);
+}
+
+void poly_pointwise_montgomery_flash(poly *c, const uint32_t pointer, const poly *b) {
+    unsigned int i;
+    DBENCH_START();
+   // printf("call poly_pointwise_montgomery_flash");
+   // printf("pointer %d", pointer);
+    for (i = 0; i < N; ++i) {
+
+        int64_t  a = (int64_t)matrix_flash[pointer + i];
+        //printf("%" PRId64 ",", a);
+        c->coeffs[i] = montgomery_reduce( a * b->coeffs[i]);
+    }
+   // printf("\n");
 
     DBENCH_STOP(*tmul);
 }
+
 
 /*************************************************
 * Name:        poly_power2round

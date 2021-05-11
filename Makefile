@@ -40,7 +40,6 @@ $(LIB): $(OBJECTS)
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(LIB)
-	$(RM) *.key
 
 run: ${LIB}
 	./${LIB}
