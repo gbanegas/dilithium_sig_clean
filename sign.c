@@ -245,7 +245,7 @@ int crypto_sign_verify(const uint8_t *sig,
         return -1;
     }
 
-    unpack_pk(rho, &t1, pk);
+    unpack_pk(&t1, pk);
 
     //read_rho_t1(rho, &t1);
     if (unpack_sig(c, &z, &h, sig)) {
