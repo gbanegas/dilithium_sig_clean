@@ -1,13 +1,12 @@
-//#include <random.h>
+#include <random.h>
 #include "fips202.h"
 #include "packing.h"
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
-#include "randombytes.h"
+//#include "randombytes.h"
 #include "sign.h"
 #include "symmetric.h"
-#include "blob_writer.h"
 #include <stdint.h>
 
 /*************************************************
@@ -31,7 +30,7 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck s2, t1, t0;
 
     /* Get randomness for rho, rhoprime and key */
-    randombytes(seedbuf, SEEDBYTES);
+    random_bytes(seedbuf, SEEDBYTES);
     shake256(seedbuf, 2 * SEEDBYTES + CRHBYTES, seedbuf, SEEDBYTES);
     rho = seedbuf;
     rhoprime = rho + SEEDBYTES;
@@ -58,8 +57,8 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck_caddq(&t1);
     polyveck_power2round(&t1, &t0, &t1);
     pack_pk(pk, rho, &t1);
-    save(rho, &t1);
-    save_matrix(mat);
+    //save(rho, &t1);
+    //save_matrix(mat);
 
     /* Compute H(rho, t1) and write secret key */
     shake256(tr, SEEDBYTES, pk, CRYPTO_PUBLICKEYBYTES);
@@ -246,9 +245,9 @@ int crypto_sign_verify(const uint8_t *sig,
         return -1;
     }
 
-    //unpack_pk(rho, &t1, pk);
+    unpack_pk(rho, &t1, pk);
 
-    read_rho_t1(rho, &t1);
+    //read_rho_t1(rho, &t1);
     if (unpack_sig(c, &z, &h, sig)) {
         return -1;
     }
