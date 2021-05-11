@@ -26,6 +26,10 @@ void polyvecl_pointwise_acc_montgomery(poly *w,
         const polyvecl *u,
         const polyvecl *v);
 
+void polyvecl_pointwise_acc_montgomery_flash(poly *w,
+                                       const uint32_t pointer,
+                                       const polyvecl *v);
+
 
 int polyvecl_chknorm(const polyvecl *v, int32_t B);
 
@@ -64,5 +68,7 @@ void polyveck_pack_w1(uint8_t r[K * POLYW1_PACKEDBYTES], const polyveck *w1);
 void polyvec_matrix_expand(polyvecl mat[K], const uint8_t rho[SEEDBYTES]);
 
 void polyvec_matrix_pointwise_montgomery(polyveck *t, const polyvecl mat[K], const polyvecl *v);
+
+void polyvec_matrix_pointwise_montgomery_flash(polyveck *t, const polyvecl *v);
 
 #endif

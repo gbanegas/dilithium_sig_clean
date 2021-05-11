@@ -11,7 +11,7 @@
 *              sampling on the output stream of SHAKE128(rho|j|i)
 *              or AES256CTR(rho,j|i).
 *
-* Arguments:   - polyvecl mat[K]: output matrix
+* Arguments:   - polyvecl matrix_flash[K]: output matrix
 *              - const uint8_t rho[]: byte array containing seed rho
 **************************************************/
 void polyvec_matrix_expand(polyvecl mat[K], const uint8_t rho[SEEDBYTES]) {
@@ -31,6 +31,15 @@ void polyvec_matrix_pointwise_montgomery(polyveck *t, const polyvecl mat[K], con
         polyvecl_pointwise_acc_montgomery(&t->vec[i], &mat[i], v);
     }
 }
+
+void polyvec_matrix_pointwise_montgomery_flash(polyveck *t, const polyvecl *v) {
+    unsigned int i;
+
+    for (i = 0; i < K; ++i) {
+        polyvecl_pointwise_acc_montgomery_flash(&t->vec[i], (i*(K*N)), v);
+    }
+}
+
 
 /**************************************************************/
 /************ Vectors of polynomials of length L **************/
@@ -143,12 +152,28 @@ void polyvecl_pointwise_acc_montgomery(poly *w,
     unsigned int i;
     poly t;
 
+    //TODO: pointer to the row
     poly_pointwise_montgomery(w, &u->vec[0], &v->vec[0]);
     for (i = 1; i < L; ++i) {
         poly_pointwise_montgomery(&t, &u->vec[i], &v->vec[i]);
         poly_add(w, w, &t);
     }
 }
+
+void polyvecl_pointwise_acc_montgomery_flash(poly *w,
+                                       const uint32_t pointer,
+                                       const polyvecl *v) {
+    unsigned int i;
+    poly t;
+
+    //TODO: pointer to the row
+    poly_pointwise_montgomery_flash(w, pointer, &v->vec[0]);
+    for (i = 1; i < L; ++i) {
+        poly_pointwise_montgomery_flash(&t, pointer+(i*N), &v->vec[i]);
+        poly_add(w, w, &t);
+    }
+}
+
 
 /*************************************************
 * Name:        polyvecl_chknorm

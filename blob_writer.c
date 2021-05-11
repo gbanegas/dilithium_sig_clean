@@ -16,8 +16,6 @@ void save(const uint8_t rho[SEEDBYTES],
     }
 
     for (i = 0; i < K; ++i) {
-
-
         for (int j = 0; j < N / 4; ++j) {
             uint8_t a = (uint8_t) (t1->vec[i].coeffs[4 * j + 0] >> 0);
             uint8_t b = (uint8_t) ((t1->vec[i].coeffs[4 * j + 0] >> 8) | (t1->vec[i].coeffs[4 * j + 1] << 2));
@@ -38,6 +36,50 @@ void save(const uint8_t rho[SEEDBYTES],
 
     fclose(frho);
     fclose(ft1);
+}
+
+void save_matrix(polyvecl mat[K]){
+
+
+    FILE *frho;
+    frho = fopen("matrix_flash.key","w");
+
+    for(int i = 0; i < K; i++){
+        for(int j  = 0 ; j < L;j++){
+            poly p = mat[i].vec[j];
+            for(int k = 0; k < N; k++){
+               // printf("coeff: %d\n", p.coeffs[k]);
+                fprintf(frho,"%d ", p.coeffs[k]);
+               // fprintf(f_mat,"%d ",p.coeffs[k]);
+            }
+        }
+    }
+    //printf("\n--------------------\n");
+
+    fclose(frho);
+
+
+
+}
+
+void read_mat(polyvecl mat[K]){
+    FILE *fp = fopen("mat.key", "r");
+    int i,l,k;
+    for (i = 0; i < K; i++) {
+        for (l = 0; l < L; l++) {
+            poly p;
+            for (k = 0; k < N; k++) {
+                int32_t tmp = 0;
+                fscanf(fp, "%d", &tmp);
+                p.coeffs[k] = tmp;
+              //  printf("%d, ", tmp);
+            }
+            mat[i].vec[l] = p;
+        }
+    }
+   // printf("\n");
+
+
 }
 
 void read_rho_t1(uint8_t rho[SEEDBYTES],
@@ -69,4 +111,40 @@ void read_rho_t1(uint8_t rho[SEEDBYTES],
         }
     }
 
+}
+
+void save_pk(uint8_t pk[CRYPTO_PUBLICKEYBYTES]){
+    FILE *fp = fopen("pk.key", "w");
+    for(int i =0; i < CRYPTO_PUBLICKEYBYTES;i++){
+        fprintf(fp,"%hhu ",pk[i]);
+    }
+    fclose(fp);
+}
+
+void save_sk(uint8_t sk[CRYPTO_SECRETKEYBYTES]){
+
+    FILE *fp = fopen("sk.key", "w");
+    for(int i =0; i < CRYPTO_SECRETKEYBYTES;i++){
+        fprintf(fp,"%hhu ",sk[i]);
+    }
+
+    fclose(fp);
+}
+
+void load_sk(uint8_t *sk){
+    FILE *fp = fopen("sk.key", "r");
+    for(int i =0; i < CRYPTO_SECRETKEYBYTES;i++){
+        fscanf(fp,"%hhu", &sk[i]);
+    }
+
+    fclose(fp);
+}
+
+void load_pk(uint8_t *pk){
+    FILE *fp = fopen("pk.key", "r");
+    for(int i =0; i < CRYPTO_PUBLICKEYBYTES;i++){
+        fscanf(fp,"%hhu", &pk[i]);
+    }
+
+    fclose(fp);
 }

@@ -2,10 +2,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "lattice_sign_api.h"
 #include "params.h"
 #include "randombytes.h"
+#include "blob_writer.h"
+#include "blober.h"
+
 
 #define MAXMLEN 2048
 
@@ -52,7 +56,23 @@ int main(void) {
 
 
     /* i = 0, 1, 4, 16, 64, 256, 1024 */
-    crypto_sign_keypair(pk, sk);
+    //crypto_sign_keypair(pk, sk);
+
+   load_sk(sk);
+    load_pk(pk);
+
+
+  /* printf("pk: \n");
+   for(i = 0; i < CRYPTO_PUBLICKEYBYTES;i++){
+       printf("%" PRId8 ",", pk[i]);
+   }
+   printf("\n\n");
+    printf("sk: \n");
+    for(i = 0; i < CRYPTO_SECRETKEYBYTES;i++){
+        printf("%" PRId8 ",", sk[i]);
+    }
+    printf("\n\n");*/
+
 
     for (i = 0; i < MAXMLEN; i = (i == 0) ? i + 1 : i << 2) {
         randombytes(mi, i);
