@@ -232,7 +232,6 @@ int crypto_sign_verify(const uint8_t *sig,
         const uint8_t *pk) {
     unsigned int i;
     uint8_t buf[K * POLYW1_PACKEDBYTES];
-    uint8_t rho[SEEDBYTES];
     uint8_t mu[CRHBYTES];
     uint8_t c[SEEDBYTES];
     uint8_t c2[SEEDBYTES];
