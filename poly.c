@@ -176,6 +176,23 @@ void poly_invntt_tomont(poly *a) {
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
+#ifdef FLASH
+void poly_pointwise_montgomery_flash(poly *c, const uint32_t pointer, const poly *b) {
+    unsigned int i;
+    DBENCH_START();
+    // printf("call poly_pointwise_montgomery_flash");
+    // printf("pointer %d", pointer);
+    for (i = 0; i < N; ++i) {
+
+        int64_t  a = (int64_t)matrix_flash[pointer + i];
+        //printf("%" PRId64 ",", a);
+        c->coeffs[i] = montgomery_reduce( a * b->coeffs[i]);
+    }
+    // printf("\n");
+
+    DBENCH_STOP(*tmul);
+}
+#endif
 void poly_pointwise_montgomery(poly *c, const poly *a, const poly *b) {
     unsigned int i;
     DBENCH_START();
@@ -189,21 +206,6 @@ void poly_pointwise_montgomery(poly *c, const poly *a, const poly *b) {
     DBENCH_STOP(*tmul);
 }
 
-void poly_pointwise_montgomery_flash(poly *c, const uint32_t pointer, const poly *b) {
-    unsigned int i;
-    DBENCH_START();
-   // printf("call poly_pointwise_montgomery_flash");
-   // printf("pointer %d", pointer);
-    for (i = 0; i < N; ++i) {
-
-        int64_t  a = (int64_t)matrix_flash[pointer + i];
-        //printf("%" PRId64 ",", a);
-        c->coeffs[i] = montgomery_reduce( a * b->coeffs[i]);
-    }
-   // printf("\n");
-
-    DBENCH_STOP(*tmul);
-}
 
 
 /*************************************************

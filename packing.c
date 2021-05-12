@@ -37,8 +37,10 @@ void pack_pk(uint8_t pk[CRYPTO_PUBLICKEYBYTES],
 *              - const polyveck *t1: pointer to output vector t1
 *              - uint8_t pk[]: byte array containing bit-packed pk
 **************************************************/
-void unpack_pk(                                        polyveck *t1,
-                                        const uint8_t pk[CRYPTO_PUBLICKEYBYTES]) {
+
+#ifdef FLASH
+void unpack_pk(polyveck *t1,
+        const uint8_t pk[CRYPTO_PUBLICKEYBYTES]) {
     unsigned int i;
 
    /* for (i = 0; i < SEEDBYTES; ++i) {
@@ -50,7 +52,22 @@ void unpack_pk(                                        polyveck *t1,
         polyt1_unpack(&t1->vec[i], pk + i * POLYT1_PACKEDBYTES);
     }
 }
+#else
+void unpack_pk(
+        uint8_t rho[SEEDBYTES], polyveck *t1,
+                                        const uint8_t pk[CRYPTO_PUBLICKEYBYTES]) {
+    unsigned int i;
 
+   for (i = 0; i < SEEDBYTES; ++i) {
+        rho[i] = pk[i];
+    }
+    pk += SEEDBYTES;
+
+    for (i = 0; i < K; ++i) {
+        polyt1_unpack(&t1->vec[i], pk + i * POLYT1_PACKEDBYTES);
+    }
+}
+#endif
 /*************************************************
 * Name:        pack_sk
 *

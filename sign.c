@@ -1,10 +1,10 @@
-#include <random.h>
+//#include <random.h>
 #include "fips202.h"
 #include "packing.h"
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
-//#include "randombytes.h"
+#include "randombytes.h"
 #include "sign.h"
 #include "symmetric.h"
 #include <stdint.h>
@@ -30,7 +30,7 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk) {
     polyveck s2, t1, t0;
 
     /* Get randomness for rho, rhoprime and key */
-    random_bytes(seedbuf, SEEDBYTES);
+    randombytes(seedbuf, SEEDBYTES);
     shake256(seedbuf, 2 * SEEDBYTES + CRHBYTES, seedbuf, SEEDBYTES);
     rho = seedbuf;
     rhoprime = rho + SEEDBYTES;
@@ -94,6 +94,12 @@ int crypto_sign_signature(uint8_t *sig,
     poly cp;
     shake256incctx state;
 
+#ifdef  FLASH
+
+#else
+    polyvecl mat[K];
+#endif
+
     rho = seedbuf;
     tr = rho + SEEDBYTES;
     key = tr + SEEDBYTES;
@@ -112,7 +118,10 @@ int crypto_sign_signature(uint8_t *sig,
     shake256(rhoprime, CRHBYTES, key, SEEDBYTES + CRHBYTES);
 
     /* Expand matrix and transform vectors */
-    //polyvec_matrix_expand(mat, rho);
+#if FLASH
+#else
+    polyvec_matrix_expand(mat, rho);
+#endif
     polyvecl_ntt(&s1);
     polyveck_ntt(&s2);
     polyveck_ntt(&t0);
@@ -124,7 +133,11 @@ rej:
     /* Matrix-vector multiplication */
     z = y;
     polyvecl_ntt(&z);
+#ifdef FLASH
     polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
+#else
+    polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+#endif
     polyveck_reduce(&w1);
     polyveck_invntt_tomont(&w1);
 
@@ -233,6 +246,12 @@ int crypto_sign_verify(const uint8_t *sig,
     unsigned int i;
     uint8_t buf[K * POLYW1_PACKEDBYTES];
     uint8_t mu[CRHBYTES];
+#ifdef FLASH
+
+#else
+    uint8_t rho[SEEDBYTES];
+    polyvecl mat[K];
+#endif
     uint8_t c[SEEDBYTES];
     uint8_t c2[SEEDBYTES];
     poly cp;
@@ -243,8 +262,11 @@ int crypto_sign_verify(const uint8_t *sig,
     if (siglen != CRYPTO_BYTES) {
         return -1;
     }
-
-    unpack_pk(&t1, pk);
+#ifdef FLASH
+    unpack_pk( &t1, pk);
+#else
+    unpack_pk(rho, &t1, pk);
+#endif
 
     //read_rho_t1(rho, &t1);
     if (unpack_sig(c, &z, &h, sig)) {
@@ -265,46 +287,24 @@ int crypto_sign_verify(const uint8_t *sig,
 
     /* Matrix-vector multiplication; compute Az - c2^dt1 */
     poly_challenge(&cp, c);
-    //polyvec_matrix_expand(mat, rho);
-/*    printf("old:\n");
-    for(int i = 0; i < K; i++){
-        for(int j  = 0 ; j < L;j++){
-            poly p = matrix_flash[i].vec[j];
+#ifdef FLASH
 
-            for(int k = 0; k < N; k++){
-                printf("%d, ", p.coeffs[k]);
-                // fprintf(f_mat,"%d ",p.coeffs[k]);
-            }
-
-        }
-    }*/
-
-   /* printf("\n----- \n");
-    printf("N_read:\n");*/
-    //read_mat(mat);
-    /*printf("N_read:\n");
-    for(int i = 0; i < K; i++){
-        for(int j  = 0 ; j < L;j++){
-            poly p = matrix_flash[i].vec[j];
-            //printf("| ");
-            for(int k = 0; k < N; k++){
-                printf("%d, ", p.coeffs[k]);
-                // fprintf(f_mat,"%d ",p.coeffs[k]);
-            }
-           // printf(" |\n");
-        }
-    }*/
-/*    printf("\n");*/
-
+#else
+    polyvec_matrix_expand(mat, rho);
+#endif
 
     polyvecl_ntt(&z);
-    polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
 
+#ifdef FLASH
+    polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
+#else
+    polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+#endif
     poly_ntt(&cp);
 
-    //TODO: check how to handle the NTT
     polyveck_shiftl(&t1);
     polyveck_ntt(&t1);
+
     polyveck_pointwise_poly_montgomery(&t1, &cp, &t1);
 
     polyveck_sub(&w1, &w1, &t1);

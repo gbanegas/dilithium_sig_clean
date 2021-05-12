@@ -3,7 +3,7 @@ project(dilith C)
 
 set(CMAKE_C_STANDARD 99)
 
-
+add_compile_options(-Wall -Wextra -pedantic -Werror -DFLASH)
 set ( SOURCES
         testvectors.c
         fips202.c
