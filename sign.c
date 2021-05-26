@@ -94,7 +94,7 @@ int crypto_sign_signature(uint8_t *sig,
     poly cp;
     shake256incctx state;
 
-#ifdef  FLASH
+#ifdef  LATTICE_MATRIX_IN_FLASH
 
 #else
     polyvecl mat[K];
@@ -133,7 +133,7 @@ rej:
     /* Matrix-vector multiplication */
     z = y;
     polyvecl_ntt(&z);
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
     polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
 #else
     polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
@@ -246,7 +246,7 @@ int crypto_sign_verify(const uint8_t *sig,
     unsigned int i;
     uint8_t buf[K * POLYW1_PACKEDBYTES];
     uint8_t mu[CRHBYTES];
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 
 #else
     uint8_t rho[SEEDBYTES];
@@ -262,7 +262,7 @@ int crypto_sign_verify(const uint8_t *sig,
     if (siglen != CRYPTO_BYTES) {
         return -1;
     }
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
     unpack_pk( &t1, pk);
 #else
     unpack_pk(rho, &t1, pk);
@@ -287,7 +287,7 @@ int crypto_sign_verify(const uint8_t *sig,
 
     /* Matrix-vector multiplication; compute Az - c2^dt1 */
     poly_challenge(&cp, c);
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 
 #else
     polyvec_matrix_expand(mat, rho);
@@ -295,7 +295,7 @@ int crypto_sign_verify(const uint8_t *sig,
 
     polyvecl_ntt(&z);
 
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
     polyvec_matrix_pointwise_montgomery_flash(&w1, &z);
 #else
     polyvec_matrix_pointwise_montgomery(&w1, mat, &z);

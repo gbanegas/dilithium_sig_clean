@@ -1,0 +1,3 @@
+/home/djarin/RIOT_hash/dilithium_sig_clean/CMakeFiles/rebuild_cache.dir
+/home/djarin/RIOT_hash/dilithium_sig_clean/CMakeFiles/edit_cache.dir
+/home/djarin/RIOT_hash/dilithium_sig_clean/CMakeFiles/dilith.dir

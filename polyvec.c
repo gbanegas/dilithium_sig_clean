@@ -24,7 +24,7 @@ void polyvec_matrix_expand(polyvecl mat[K], const uint8_t rho[SEEDBYTES]) {
         }
     }
 }
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 void polyvec_matrix_pointwise_montgomery_flash(polyveck *t, const polyvecl *v) {
     unsigned int i;
 
@@ -148,7 +148,7 @@ void polyvecl_pointwise_poly_montgomery(polyvecl *r, const poly *a, const polyve
 *              - const polyvecl *u: pointer to first input vector
 *              - const polyvecl *v: pointer to second input vector
 **************************************************/
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 void polyvecl_pointwise_acc_montgomery_flash(poly *w,
                                              const uint32_t pointer,
                                              const polyvecl *v) {

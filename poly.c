@@ -176,7 +176,7 @@ void poly_invntt_tomont(poly *a) {
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 void poly_pointwise_montgomery_flash(poly *c, const uint32_t pointer, const poly *b) {
     unsigned int i;
     DBENCH_START();

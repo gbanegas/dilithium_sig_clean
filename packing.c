@@ -38,7 +38,7 @@ void pack_pk(uint8_t pk[CRYPTO_PUBLICKEYBYTES],
 *              - uint8_t pk[]: byte array containing bit-packed pk
 **************************************************/
 
-#ifdef FLASH
+#ifdef LATTICE_MATRIX_IN_FLASH
 void unpack_pk(polyveck *t1,
         const uint8_t pk[CRYPTO_PUBLICKEYBYTES]) {
     unsigned int i;
